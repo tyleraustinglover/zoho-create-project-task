@@ -1,133 +1,162 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Create Project Task</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Create Project Task</title>
 
-  <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
+    <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      color: #202124;
-      background: #ffffff;
-    }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #202124;
+            background: #ffffff;
+        }
 
-    .wrap {
-      max-width: 650px;
-      margin: auto;
-      padding: 25px;
-    }
+        .wrap {
+            max-width: 650px;
+            margin: auto;
+            padding: 25px;
+        }
 
-    h2 {
-      margin-top: 0;
-      margin-bottom: 22px;
-    }
+        h2 {
+            margin-top: 0;
+            margin-bottom: 22px;
+        }
 
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: bold;
-      margin: 16px 0 7px;
-    }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 16px 0 7px;
+        }
 
-    .readonly {
-      padding: 11px 12px;
-      background: #f6f7f9;
-      border: 1px solid #d9dde3;
-      border-radius: 6px;
-    }
+        .readonly {
+            padding: 11px 12px;
+            background: #f6f7f9;
+            border: 1px solid #d9dde3;
+            border-radius: 6px;
+        }
 
-    select,
-    textarea {
-      width: 100%;
-      padding: 11px 12px;
-      border: 1px solid #c8cdd5;
-      border-radius: 6px;
-      font: inherit;
-    }
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #c8cdd5;
+            border-radius: 6px;
+            font: inherit;
+        }
 
-    textarea {
-      min-height: 130px;
-      resize: vertical;
-    }
+        textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
 
-    .actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
-    }
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
 
-    button {
-      padding: 10px 18px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+        button {
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-    #cancel {
-      background: white;
-      border: 1px solid #c8cdd5;
-    }
+        #cancel {
+            background: white;
+            border: 1px solid #c8cdd5;
+        }
 
-    #create {
-      background: #2f63e9;
-      color: white;
-      border: 1px solid #2f63e9;
-    }
+        #create {
+            background: #2f63e9;
+            color: white;
+            border: 1px solid #2f63e9;
+        }
 
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
+        button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
 
-    #status {
-      margin-top: 15px;
-      font-size: 13px;
-    }
+        #status {
+            margin-top: 15px;
+            font-size: 13px;
+        }
 
-    .error {
-      color: #b3261e;
-    }
+        .error {
+            color: #b3261e;
+        }
 
-    .success {
-      color: #137333;
-    }
-  </style>
+        .success {
+            color: #137333;
+        }
+
+        .diagnostic {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .diagnostic h3 {
+            margin: 0 0 10px;
+            font-size: 14px;
+        }
+
+        #debug {
+            background: #f6f7f9;
+            border: 1px solid #d9dde3;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="wrap">
 
-  <h2>Create Project Task</h2>
+    <h2>Create Project Task</h2>
 
-  <label>Opportunity</label>
-  <div id="oppName" class="readonly">Loading...</div>
+    <label>Opportunity</label>
+    <div id="oppName" class="readonly">Loading...</div>
 
-  <label for="project">Project *</label>
-  <select id="project" disabled>
-    <option value="">Loading active projects...</option>
-  </select>
+    <label for="project">Project *</label>
+    <select id="project" disabled>
+        <option value="">Loading active projects...</option>
+    </select>
 
-  <label for="notes">Notes</label>
-  <textarea
-    id="notes"
-    placeholder="Enter notes or instructions for the task..."></textarea>
+    <label for="notes">Notes</label>
+    <textarea
+        id="notes"
+        placeholder="Enter notes or instructions for the task..."></textarea>
 
-  <div class="actions">
-    <button id="cancel" type="button">Cancel</button>
-    <button id="create" type="button" disabled>Create Task</button>
-  </div>
+    <div class="actions">
+        <button id="cancel" type="button">Cancel</button>
+        <button id="create" type="button" disabled>Create Task</button>
+    </div>
 
-  <div id="status"></div>
+    <div id="status"></div>
+
+    <div class="diagnostic">
+        <h3>Diagnostic Information</h3>
+        <div id="debug">Waiting for Zoho...</div>
+    </div>
 
 </div>
 
@@ -138,257 +167,564 @@ let opportunityName = "";
 
 const $ = id => document.getElementById(id);
 
-function status(message, type = "") {
-  $("status").className = type;
-  $("status").textContent = message || "";
+
+/* -------------------------
+   DIAGNOSTIC LOGGER
+-------------------------- */
+
+function debug(label, value) {
+
+    let text;
+
+    try {
+        text = JSON.stringify(value, null, 2);
+    }
+    catch (e) {
+        text = String(value);
+    }
+
+    $("debug").textContent +=
+        "\n\n--- " + label + " ---\n" + text;
 }
+
+
+function status(message, type = "") {
+
+    $("status").className = type;
+    $("status").textContent = message || "";
+
+}
+
 
 function getId(value) {
-  if (Array.isArray(value)) {
-    return String(value[0] || "");
-  }
 
-  return String(value || "");
+    if (Array.isArray(value)) {
+        return String(value[0] || "");
+    }
+
+    return String(value || "");
 }
+
+
+/* -------------------------
+   PARSE FUNCTION RESPONSE
+-------------------------- */
 
 function parseFunction(response) {
 
-  let output =
-    response &&
-    response.details
-      ? response.details.output
-      : null;
+    debug("RAW FUNCTION RESPONSE", response);
 
-  if (output == null && response && response.details) {
-    output = response.details;
-  }
+    let output = null;
 
-  if (typeof output === "string") {
-    try {
-      return JSON.parse(output);
-    } catch (e) {
-      return { message: output };
+    if (
+        response &&
+        response.details &&
+        response.details.output !== undefined
+    ) {
+        output = response.details.output;
     }
-  }
 
-  return output || response || {};
+    else if (
+        response &&
+        response.details !== undefined
+    ) {
+        output = response.details;
+    }
+
+    else {
+        output = response;
+    }
+
+
+    if (typeof output === "string") {
+
+        try {
+            return JSON.parse(output);
+        }
+
+        catch (e) {
+
+            debug(
+                "FUNCTION OUTPUT WAS NOT JSON",
+                output
+            );
+
+            return {
+                message: output
+            };
+        }
+    }
+
+    return output || {};
 }
 
 
-/* --------------------------------
-   LOAD OPPORTUNITY + PROJECT LIST
---------------------------------- */
+/* =================================
+   PAGE LOAD
+================================= */
 
-ZOHO.embeddedApp.on("PageLoad", async function(data) {
+ZOHO.embeddedApp.on(
+    "PageLoad",
+    async function(data) {
 
-  try {
+        $("debug").textContent =
+            "Widget PageLoad event received.";
 
-    opportunityId = getId(data.EntityId);
-
-    if (!opportunityId) {
-      throw new Error(
-        "Opportunity ID was not provided to the widget."
-      );
-    }
-
-    const entity = data.Entity || "Deals";
-
-    const recordResponse =
-      await ZOHO.CRM.API.getRecord({
-        Entity: entity,
-        RecordID: opportunityId
-      });
-
-    const record =
-      recordResponse.data &&
-      recordResponse.data[0]
-        ? recordResponse.data[0]
-        : {};
-
-    opportunityName =
-      record.Deal_Name ||
-      record.Opportunity_Name ||
-      record.Name ||
-      "Opportunity";
-
-    $("oppName").textContent =
-      opportunityName;
+        debug(
+            "PAGELOAD DATA FROM ZOHO",
+            data
+        );
 
 
-    /* GET ACTIVE PROJECTS */
+        try {
 
-    const projectResponse =
-      await ZOHO.CRM.FUNCTIONS.execute(
-        "get_active_projects",
-        {
-          arguments: JSON.stringify({})
+            /* -------------------------
+               FIND OPPORTUNITY ID
+            -------------------------- */
+
+            opportunityId =
+                getId(
+                    data.EntityId ||
+                    data.EntityID ||
+                    data.RecordId ||
+                    data.RecordID ||
+                    data.id
+                );
+
+
+            debug(
+                "DETECTED OPPORTUNITY ID",
+                opportunityId
+            );
+
+
+            if (!opportunityId) {
+
+                throw new Error(
+                    "Zoho did not provide an Opportunity ID."
+                );
+
+            }
+
+
+            /* -------------------------
+               DETECT MODULE
+            -------------------------- */
+
+            const entity =
+                data.Entity ||
+                data.EntityName ||
+                "Deals";
+
+
+            debug(
+                "DETECTED ENTITY",
+                entity
+            );
+
+
+            /* -------------------------
+               GET CRM OPPORTUNITY
+            -------------------------- */
+
+            const recordResponse =
+                await ZOHO.CRM.API.getRecord({
+
+                    Entity: entity,
+                    RecordID: opportunityId
+
+                });
+
+
+            debug(
+                "CRM RECORD RESPONSE",
+                recordResponse
+            );
+
+
+            const record =
+                recordResponse &&
+                recordResponse.data &&
+                recordResponse.data[0]
+                    ? recordResponse.data[0]
+                    : {};
+
+
+            opportunityName =
+                record.Deal_Name ||
+                record.Opportunity_Name ||
+                record.Name ||
+                "Opportunity";
+
+
+            $("oppName").textContent =
+                opportunityName;
+
+
+            debug(
+                "OPPORTUNITY NAME",
+                opportunityName
+            );
+
+
+            /* =================================
+               GET ACTIVE PROJECTS
+            ================================= */
+
+            debug(
+                "CALLING FUNCTION",
+                "get_active_projects"
+            );
+
+
+            const projectResponse =
+                await ZOHO.CRM.FUNCTIONS.execute(
+                    "get_active_projects",
+                    {
+                        arguments:
+                            JSON.stringify({})
+                    }
+                );
+
+
+            debug(
+                "GET ACTIVE PROJECTS RESPONSE",
+                projectResponse
+            );
+
+
+            const payload =
+                parseFunction(
+                    projectResponse
+                );
+
+
+            debug(
+                "PARSED PROJECT RESPONSE",
+                payload
+            );
+
+
+            let projects = null;
+
+
+            if (
+                payload &&
+                Array.isArray(payload.projects)
+            ) {
+
+                projects =
+                    payload.projects;
+
+            }
+
+            else if (
+                Array.isArray(payload)
+            ) {
+
+                projects =
+                    payload;
+
+            }
+
+
+            if (!projects) {
+
+                throw new Error(
+                    "Could not load active Zoho Projects."
+                );
+
+            }
+
+
+            /* -------------------------
+               BUILD PROJECT DROPDOWN
+            -------------------------- */
+
+            $("project").innerHTML =
+                '<option value="">Select a project...</option>';
+
+
+            projects
+                .sort(
+                    (a, b) =>
+                        String(a.name)
+                            .localeCompare(
+                                String(b.name)
+                            )
+                )
+                .forEach(
+                    project => {
+
+                        const option =
+                            document.createElement(
+                                "option"
+                            );
+
+                        option.value =
+                            String(project.id);
+
+                        option.textContent =
+                            project.name;
+
+                        $("project")
+                            .appendChild(
+                                option
+                            );
+
+                    }
+                );
+
+
+            $("project").disabled =
+                false;
+
+            $("create").disabled =
+                false;
+
+
+            status(
+                "Projects loaded successfully.",
+                "success"
+            );
+
         }
-      );
 
-    const payload =
-      parseFunction(projectResponse);
 
-    const projects =
-      payload.projects || payload;
+        catch (error) {
 
-    if (!Array.isArray(projects)) {
-      throw new Error(
-        payload.message ||
-        "Could not load active Zoho Projects."
-      );
+            debug(
+                "PAGELOAD ERROR",
+                {
+                    message:
+                        error.message,
+
+                    stack:
+                        error.stack
+                }
+            );
+
+
+            if (!opportunityName) {
+
+                $("oppName").textContent =
+                    "Unable to load Opportunity";
+
+            }
+
+
+            status(
+                error.message ||
+                String(error),
+                "error"
+            );
+
+        }
+
     }
-
-    $("project").innerHTML =
-      '<option value="">Select a project...</option>';
-
-    projects
-      .sort((a, b) =>
-        String(a.name).localeCompare(
-          String(b.name)
-        )
-      )
-      .forEach(project => {
-
-        const option =
-          document.createElement("option");
-
-        option.value =
-          String(project.id);
-
-        option.textContent =
-          project.name;
-
-        $("project")
-          .appendChild(option);
-
-      });
-
-    $("project").disabled = false;
-    $("create").disabled = false;
-
-  }
-  catch (error) {
-
-    $("oppName").textContent =
-      "Unable to load Opportunity";
-
-    status(
-      error.message || String(error),
-      "error"
-    );
-
-  }
-
-});
+);
 
 
-/* ------------------------
-   CREATE PROJECT TASK
-------------------------- */
+/* =================================
+   CREATE TASK
+================================= */
 
 $("create").addEventListener(
-  "click",
-  async function() {
+    "click",
+    async function() {
 
-    const projectId =
-      $("project").value;
+        const projectId =
+            $("project").value;
 
-    const notes =
-      $("notes").value.trim();
+        const notes =
+            $("notes").value.trim();
 
-    if (!projectId) {
 
-      status(
-        "Please select a project.",
-        "error"
-      );
+        if (!projectId) {
 
-      return;
-    }
+            status(
+                "Please select a project.",
+                "error"
+            );
 
-    $("create").disabled = true;
-    $("cancel").disabled = true;
+            return;
+        }
 
-    status("Creating task...");
 
-    try {
+        $("create").disabled =
+            true;
 
-      const response =
-        await ZOHO.CRM.FUNCTIONS.execute(
-          "create_project_task_widget",
-          {
-            arguments: JSON.stringify({
-              opportunityId:
-                opportunityId,
+        $("cancel").disabled =
+            true;
 
-              projectId:
-                projectId,
 
-              notes:
-                notes
-            })
-          }
+        status(
+            "Creating task..."
         );
 
-      const result =
-        parseFunction(response);
 
-      if (
-        result.success === false ||
-        result.error
-      ) {
+        debug(
+            "CREATE TASK REQUEST",
+            {
+                opportunityId:
+                    opportunityId,
 
-        throw new Error(
-          result.message ||
-          result.error ||
-          "Task creation failed."
+                projectId:
+                    projectId,
+
+                notes:
+                    notes
+            }
         );
 
-      }
 
-      status(
-        result.message ||
-        "Project task created successfully.",
-        "success"
-      );
+        try {
+
+            const response =
+                await ZOHO.CRM.FUNCTIONS.execute(
+                    "create_project_task_widget",
+                    {
+                        arguments:
+                            JSON.stringify({
+
+                                opportunityId:
+                                    opportunityId,
+
+                                projectId:
+                                    projectId,
+
+                                notes:
+                                    notes
+
+                            })
+                    }
+                );
+
+
+            debug(
+                "CREATE TASK RAW RESPONSE",
+                response
+            );
+
+
+            const result =
+                parseFunction(
+                    response
+                );
+
+
+            debug(
+                "CREATE TASK PARSED RESPONSE",
+                result
+            );
+
+
+            if (
+                result.success === false ||
+                result.error
+            ) {
+
+                throw new Error(
+                    result.message ||
+                    result.error ||
+                    "Task creation failed."
+                );
+
+            }
+
+
+            status(
+                result.message ||
+                "Project task created successfully.",
+                "success"
+            );
+
+        }
+
+
+        catch (error) {
+
+            debug(
+                "CREATE TASK ERROR",
+                {
+                    message:
+                        error.message,
+
+                    stack:
+                        error.stack
+                }
+            );
+
+
+            status(
+                error.message ||
+                String(error),
+                "error"
+            );
+
+
+            $("create").disabled =
+                false;
+
+            $("cancel").disabled =
+                false;
+
+        }
 
     }
-    catch (error) {
-
-      status(
-        error.message || String(error),
-        "error"
-      );
-
-      $("create").disabled = false;
-      $("cancel").disabled = false;
-
-    }
-
-  }
 );
 
 
-/* ------------------------
+/* =================================
    CANCEL
-------------------------- */
+================================= */
 
 $("cancel").addEventListener(
-  "click",
-  function() {
+    "click",
+    function() {
 
-    try {
-      ZOHO.CRM.UI.Popup.close();
-    }
-    catch (e) {
-      window.close();
-    }
+        try {
 
-  }
+            ZOHO.CRM.UI.Popup.close();
+
+        }
+
+        catch (e) {
+
+            window.close();
+
+        }
+
+    }
 );
 
 
-ZOHO.embeddedApp.init();
+/* =================================
+   INITIALIZE ZOHO SDK
+================================= */
+
+$("debug").textContent =
+    "Initializing Zoho CRM SDK...";
+
+
+ZOHO.embeddedApp
+    .init()
+    .then(function() {
+
+        debug(
+            "SDK INITIALIZED",
+            "Success"
+        );
+
+    })
+    .catch(function(error) {
+
+        debug(
+            "SDK INITIALIZATION ERROR",
+            error
+        );
+
+    });
 
 </script>
 
