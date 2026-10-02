@@ -44,6 +44,7 @@
             border-radius: 6px;
         }
 
+        input,
         select,
         textarea {
             width: 100%;
@@ -135,6 +136,13 @@
 
     <label>Opportunity</label>
     <div id="oppName" class="readonly">Loading...</div>
+
+    <label for="taskName">Task Name *</label>
+    <input
+        type="text"
+        id="taskName"
+        placeholder="Enter task name..."
+        disabled>
 
     <label for="project">Project *</label>
     <select id="project" disabled>
@@ -360,10 +368,25 @@ ZOHO.embeddedApp.on(
             $("oppName").textContent =
                 opportunityName;
 
+            /*
+             * Prefill Task Name from Opportunity Name,
+             * but allow the user to edit it.
+             */
+            $("taskName").value =
+                opportunityName;
+
+            $("taskName").disabled =
+                false;
+
 
             debug(
                 "OPPORTUNITY NAME",
                 opportunityName
+            );
+
+            debug(
+                "DEFAULT TASK NAME",
+                $("taskName").value
             );
 
 
@@ -533,11 +556,27 @@ $("create").addEventListener(
     "click",
     async function() {
 
+        const taskName =
+            $("taskName").value.trim();
+
         const projectId =
             $("project").value;
 
         const notes =
             $("notes").value.trim();
+
+
+        if (!taskName) {
+
+            status(
+                "Please enter a Task Name.",
+                "error"
+            );
+
+            $("taskName").focus();
+
+            return;
+        }
 
 
         if (!projectId) {
@@ -557,6 +596,15 @@ $("create").addEventListener(
         $("cancel").disabled =
             true;
 
+        $("taskName").disabled =
+            true;
+
+        $("project").disabled =
+            true;
+
+        $("notes").disabled =
+            true;
+
 
         status(
             "Creating task..."
@@ -568,6 +616,9 @@ $("create").addEventListener(
             {
                 opportunityId:
                     opportunityId,
+
+                taskName:
+                    taskName,
 
                 projectId:
                     projectId,
@@ -589,6 +640,9 @@ $("create").addEventListener(
 
                                 opportunityId:
                                     opportunityId,
+
+                                taskName:
+                                    taskName,
 
                                 projectId:
                                     projectId,
@@ -669,6 +723,15 @@ $("create").addEventListener(
             $("cancel").disabled =
                 false;
 
+            $("taskName").disabled =
+                false;
+
+            $("project").disabled =
+                false;
+
+            $("notes").disabled =
+                false;
+
         }
 
     }
@@ -725,6 +788,7 @@ ZOHO.embeddedApp
         );
 
     });
+
 
 </script>
 
