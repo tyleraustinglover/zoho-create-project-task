@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Create Project Task - VERSION 5</title>
+
+    <title>Create Project Task - VERSION 6</title>
 
     <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
 
@@ -52,6 +53,23 @@
             border: 1px solid #c8cdd5;
             border-radius: 6px;
             font: inherit;
+            background: #ffffff;
+            color: #202124;
+        }
+
+        /* Task Name must always remain editable */
+        #taskName {
+            cursor: text;
+            pointer-events: auto;
+            user-select: text;
+            -webkit-user-select: text;
+            opacity: 1;
+            background: #ffffff;
+        }
+
+        #taskName:focus {
+            outline: 2px solid #2f63e9;
+            outline-offset: 1px;
         }
 
         textarea {
@@ -141,8 +159,10 @@
     <input
         type="text"
         id="taskName"
+        name="taskName"
         placeholder="Enter task name..."
-        >
+        autocomplete="off"
+    >
 
     <label for="project">Project *</label>
     <select id="project" disabled>
@@ -176,9 +196,9 @@ let opportunityName = "";
 const $ = id => document.getElementById(id);
 
 
-/* -------------------------
+/* =================================
    DIAGNOSTIC LOGGER
--------------------------- */
+================================= */
 
 function debug(label, value) {
 
@@ -214,9 +234,9 @@ function getId(value) {
 }
 
 
-/* -------------------------
+/* =================================
    PARSE FUNCTION RESPONSE
--------------------------- */
+================================= */
 
 function parseFunction(response) {
 
@@ -242,7 +262,6 @@ function parseFunction(response) {
     else {
         output = response;
     }
-
 
     if (typeof output === "string") {
 
@@ -283,7 +302,6 @@ ZOHO.embeddedApp.on(
             data
         );
 
-
         try {
 
             /* -------------------------
@@ -299,12 +317,10 @@ ZOHO.embeddedApp.on(
                     data.id
                 );
 
-
             debug(
                 "DETECTED OPPORTUNITY ID",
                 opportunityId
             );
-
 
             if (!opportunityId) {
 
@@ -324,7 +340,6 @@ ZOHO.embeddedApp.on(
                 data.EntityName ||
                 "Deals";
 
-
             debug(
                 "DETECTED ENTITY",
                 entity
@@ -343,12 +358,10 @@ ZOHO.embeddedApp.on(
 
                 });
 
-
             debug(
                 "CRM RECORD RESPONSE",
                 recordResponse
             );
-
 
             const record =
                 recordResponse &&
@@ -357,27 +370,30 @@ ZOHO.embeddedApp.on(
                     ? recordResponse.data[0]
                     : {};
 
-
             opportunityName =
                 record.Deal_Name ||
                 record.Opportunity_Name ||
                 record.Name ||
                 "Opportunity";
 
-
             $("oppName").textContent =
                 opportunityName;
 
+
+            /* -------------------------
+               DEFAULT TASK NAME
+            -------------------------- */
+
             /*
-             * Prefill Task Name from Opportunity Name,
-             * but allow the user to edit it.
+             * Copy the Opportunity Name into Task Name.
+             *
+             * IMPORTANT:
+             * We do NOT disable the Task Name field.
+             * The user can freely change this value.
              */
+
             $("taskName").value =
                 opportunityName;
-
-            $("taskName").disabled =
-                false;
-
 
             debug(
                 "OPPORTUNITY NAME",
@@ -399,7 +415,6 @@ ZOHO.embeddedApp.on(
                 "get_active_projects"
             );
 
-
             const projectResponse =
                 await ZOHO.CRM.FUNCTIONS.execute(
                     "get_active_projects",
@@ -409,27 +424,22 @@ ZOHO.embeddedApp.on(
                     }
                 );
 
-
             debug(
                 "GET ACTIVE PROJECTS RESPONSE",
                 projectResponse
             );
-
 
             const payload =
                 parseFunction(
                     projectResponse
                 );
 
-
             debug(
                 "PARSED PROJECT RESPONSE",
                 payload
             );
 
-
             let projects = null;
-
 
             if (
                 payload &&
@@ -450,7 +460,6 @@ ZOHO.embeddedApp.on(
 
             }
 
-
             if (!projects) {
 
                 throw new Error(
@@ -466,7 +475,6 @@ ZOHO.embeddedApp.on(
 
             $("project").innerHTML =
                 '<option value="">Select a project...</option>';
-
 
             projects
                 .sort(
@@ -498,13 +506,11 @@ ZOHO.embeddedApp.on(
                     }
                 );
 
-
             $("project").disabled =
                 false;
 
             $("create").disabled =
                 false;
-
 
             status(
                 "Projects loaded successfully.",
@@ -512,7 +518,6 @@ ZOHO.embeddedApp.on(
             );
 
         }
-
 
         catch (error) {
 
@@ -527,14 +532,12 @@ ZOHO.embeddedApp.on(
                 }
             );
 
-
             if (!opportunityName) {
 
                 $("oppName").textContent =
                     "Unable to load Opportunity";
 
             }
-
 
             status(
                 error.message ||
@@ -556,6 +559,10 @@ $("create").addEventListener(
     "click",
     async function() {
 
+        /*
+         * Read whatever Task Name is currently
+         * in the editable field.
+         */
         const taskName =
             $("taskName").value.trim();
 
@@ -590,13 +597,16 @@ $("create").addEventListener(
         }
 
 
+        /*
+         * Disable buttons/project while submitting.
+         *
+         * Task Name intentionally remains editable.
+         */
+
         $("create").disabled =
             true;
 
         $("cancel").disabled =
-            true;
-
-        $("taskName").disabled =
             true;
 
         $("project").disabled =
@@ -654,18 +664,15 @@ $("create").addEventListener(
                     }
                 );
 
-
             debug(
                 "CREATE TASK RAW RESPONSE",
                 response
             );
 
-
             const result =
                 parseFunction(
                     response
                 );
-
 
             debug(
                 "CREATE TASK PARSED RESPONSE",
@@ -709,21 +716,16 @@ $("create").addEventListener(
                 }
             );
 
-
             status(
                 error.message ||
                 String(error),
                 "error"
             );
 
-
             $("create").disabled =
                 false;
 
             $("cancel").disabled =
-                false;
-
-            $("taskName").disabled =
                 false;
 
             $("project").disabled =
@@ -769,7 +771,6 @@ $("cancel").addEventListener(
 $("debug").textContent =
     "Initializing Zoho CRM SDK...";
 
-
 ZOHO.embeddedApp
     .init()
     .then(function() {
@@ -788,7 +789,6 @@ ZOHO.embeddedApp
         );
 
     });
-
 
 </script>
 
