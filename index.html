@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Create Project Task - VERSION 7</title>
+    <title>Create Project Task - VERSION 8</title>
 
     <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
 
@@ -192,7 +192,7 @@
 
 <div class="wrap">
 
-    <h2>Create Project Task v7</h2>
+    <h2>Create Project Task</h2>
 
     <label>Opportunity</label>
     <div id="oppName" class="readonly">Loading...</div>
@@ -1060,7 +1060,8 @@ $("create").addEventListener(
                     projectId,
 
                 notes:
-                    notes
+                    notes,
+                            customFields: JSON.stringify(dynamicFieldValues)
             }
         );
 
