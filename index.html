@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Create Project Task - VERSION 6</title>
+    <title>Create Project Task - VERSION 7</title>
 
     <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
 
@@ -112,6 +112,48 @@
             font-size: 13px;
         }
 
+
+        #dynamicFields {
+            margin-top: 4px;
+        }
+
+        .dynamic-field {
+            margin-top: 16px;
+        }
+
+        .dynamic-field > label {
+            margin-top: 0;
+        }
+
+        .checkbox-group {
+            display: grid;
+            gap: 8px;
+            padding: 10px 12px;
+            border: 1px solid #c8cdd5;
+            border-radius: 6px;
+            background: #ffffff;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .checkbox-option input {
+            width: auto;
+            margin: 0;
+        }
+
+        .field-help {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #5f6368;
+        }
+
         .error {
             color: #b3261e;
         }
@@ -169,10 +211,22 @@
         <option value="">Loading active projects...</option>
     </select>
 
+    <div id="dynamicFields"></div>
+
     <label for="notes">Notes</label>
     <textarea
         id="notes"
         placeholder="Enter notes or instructions for the task..."></textarea>
+
+    <label for="projectFiles">Project Files</label>
+    <input
+        type="file"
+        id="projectFiles"
+        multiple
+    >
+    <div class="field-help">
+        Select one or more files to attach to the task. File submission will be enabled in the next backend step.
+    </div>
 
     <div class="actions">
         <button id="cancel" type="button">Cancel</button>
@@ -192,6 +246,7 @@
 
 let opportunityId = "";
 let opportunityName = "";
+let currentLayoutFields = [];
 
 const $ = id => document.getElementById(id);
 
@@ -552,6 +607,330 @@ ZOHO.embeddedApp.on(
 
 
 /* =================================
+   DYNAMIC PROJECT FIELDS
+================================= */
+
+function clearDynamicFields() {
+    currentLayoutFields = [];
+    $("dynamicFields").innerHTML = "";
+}
+
+
+function renderDynamicFields(fields) {
+
+    clearDynamicFields();
+
+    if (!Array.isArray(fields)) {
+        return;
+    }
+
+    /*
+     * These are the project-facing fields we want to show
+     * in Version 7. Internal assignment fields such as
+     * Designers and Contact remain hidden.
+     */
+    const visibleApiNames = [
+        "request_type",
+        "urgent_status",
+        "project_details"
+    ];
+
+    currentLayoutFields = fields.filter(
+        field => visibleApiNames.includes(field.api_name)
+    );
+
+    currentLayoutFields.forEach(field => {
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "dynamic-field";
+
+        const label = document.createElement("label");
+        label.textContent =
+            field.display_name + (field.required ? " *" : "");
+
+        wrapper.appendChild(label);
+
+        if (
+            field.type === "multipicklist" &&
+            Array.isArray(field.options)
+        ) {
+
+            const group = document.createElement("div");
+            group.className = "checkbox-group";
+
+            field.options.forEach(optionValue => {
+
+                const optionLabel =
+                    document.createElement("label");
+
+                optionLabel.className = "checkbox-option";
+
+                const checkbox =
+                    document.createElement("input");
+
+                checkbox.type = "checkbox";
+                checkbox.value = optionValue;
+                checkbox.dataset.dynamicField = field.api_name;
+
+                if (
+                    field.default_value &&
+                    optionValue === field.default_value
+                ) {
+                    checkbox.checked = true;
+                }
+
+                optionLabel.appendChild(checkbox);
+                optionLabel.appendChild(
+                    document.createTextNode(optionValue)
+                );
+
+                group.appendChild(optionLabel);
+            });
+
+            wrapper.appendChild(group);
+        }
+
+        else if (
+            field.type === "picklist" &&
+            Array.isArray(field.options)
+        ) {
+
+            const select = document.createElement("select");
+            select.dataset.dynamicField = field.api_name;
+
+            if (!field.required) {
+                const blank = document.createElement("option");
+                blank.value = "";
+                blank.textContent = "Select...";
+                select.appendChild(blank);
+            }
+
+            field.options.forEach(optionValue => {
+
+                const option = document.createElement("option");
+                option.value = optionValue;
+                option.textContent = optionValue;
+
+                if (
+                    field.default_value &&
+                    optionValue === field.default_value
+                ) {
+                    option.selected = true;
+                }
+
+                select.appendChild(option);
+            });
+
+            wrapper.appendChild(select);
+        }
+
+        else if (field.type === "multiline") {
+
+            const textarea = document.createElement("textarea");
+            textarea.dataset.dynamicField = field.api_name;
+            textarea.placeholder =
+                "Enter " + field.display_name.toLowerCase() + "...";
+
+            wrapper.appendChild(textarea);
+        }
+
+        else {
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.dataset.dynamicField = field.api_name;
+
+            if (field.default_value) {
+                input.value = field.default_value;
+            }
+
+            wrapper.appendChild(input);
+        }
+
+        $("dynamicFields").appendChild(wrapper);
+    });
+}
+
+
+async function loadProjectLayout(projectId) {
+
+    clearDynamicFields();
+
+    if (!projectId) {
+        status("");
+        return;
+    }
+
+    status("Loading project fields...");
+
+    debug(
+        "CALLING PROJECT LAYOUT FUNCTION",
+        {
+            function: "get_project_task_layout",
+            projectId: projectId
+        }
+    );
+
+    const response =
+        await ZOHO.CRM.FUNCTIONS.execute(
+            "get_project_task_layout",
+            {
+                arguments:
+                    JSON.stringify({
+                        projectId: projectId
+                    })
+            }
+        );
+
+    debug(
+        "GET PROJECT TASK LAYOUT RESPONSE",
+        response
+    );
+
+    const payload =
+        parseFunction(response);
+
+    debug(
+        "PARSED PROJECT TASK LAYOUT",
+        payload
+    );
+
+    if (!payload || payload.success === false) {
+        throw new Error(
+            (payload && payload.message) ||
+            "Could not load the selected project's task fields."
+        );
+    }
+
+    renderDynamicFields(payload.fields || []);
+
+    status(
+        "Project fields loaded successfully.",
+        "success"
+    );
+}
+
+
+$("project").addEventListener(
+    "change",
+    async function() {
+
+        const projectId =
+            $("project").value;
+
+        try {
+            await loadProjectLayout(projectId);
+        }
+
+        catch (error) {
+
+            debug(
+                "PROJECT LAYOUT ERROR",
+                {
+                    message: error.message,
+                    stack: error.stack
+                }
+            );
+
+            clearDynamicFields();
+
+            status(
+                error.message || String(error),
+                "error"
+            );
+        }
+    }
+);
+
+
+function validateDynamicFields() {
+
+    for (const field of currentLayoutFields) {
+
+        if (!field.required) {
+            continue;
+        }
+
+        const selector =
+            '[data-dynamic-field="' +
+            field.api_name +
+            '"]';
+
+        const controls =
+            Array.from(
+                document.querySelectorAll(selector)
+            );
+
+        let hasValue = false;
+
+        if (field.type === "multipicklist") {
+            hasValue =
+                controls.some(
+                    control => control.checked
+                );
+        }
+
+        else {
+            hasValue =
+                controls.some(
+                    control =>
+                        String(
+                            control.value || ""
+                        ).trim() !== ""
+                );
+        }
+
+        if (!hasValue) {
+            return field.display_name;
+        }
+    }
+
+    return "";
+}
+
+
+function getDynamicFieldValues() {
+
+    const values = {};
+
+    currentLayoutFields.forEach(field => {
+
+        const selector =
+            '[data-dynamic-field="' +
+            field.api_name +
+            '"]';
+
+        const controls =
+            Array.from(
+                document.querySelectorAll(selector)
+            );
+
+        if (field.type === "multipicklist") {
+
+            values[field.column_name] =
+                controls
+                    .filter(
+                        control => control.checked
+                    )
+                    .map(
+                        control => control.value
+                    );
+        }
+
+        else {
+
+            values[field.column_name] =
+                controls[0]
+                    ? controls[0].value
+                    : "";
+        }
+    });
+
+    return values;
+}
+
+
+/* =================================
    CREATE TASK
 ================================= */
 
@@ -597,6 +976,44 @@ $("create").addEventListener(
         }
 
 
+        const missingDynamicField =
+            validateDynamicFields();
+
+        if (missingDynamicField) {
+
+            status(
+                "Please complete " +
+                missingDynamicField +
+                ".",
+                "error"
+            );
+
+            return;
+        }
+
+        const dynamicFieldValues =
+            getDynamicFieldValues();
+
+        const selectedFiles =
+            Array.from(
+                $("projectFiles").files || []
+            );
+
+        debug(
+            "DYNAMIC FIELD VALUES",
+            dynamicFieldValues
+        );
+
+        debug(
+            "SELECTED PROJECT FILES",
+            selectedFiles.map(file => ({
+                name: file.name,
+                size: file.size,
+                type: file.type
+            }))
+        );
+
+
         /*
          * Disable buttons/project while submitting.
          *
@@ -614,6 +1031,15 @@ $("create").addEventListener(
 
         $("notes").disabled =
             true;
+
+        $("projectFiles").disabled =
+            true;
+
+        document
+            .querySelectorAll("[data-dynamic-field]")
+            .forEach(control => {
+                control.disabled = true;
+            });
 
 
         status(
@@ -733,6 +1159,15 @@ $("create").addEventListener(
 
             $("notes").disabled =
                 false;
+
+            $("projectFiles").disabled =
+                false;
+
+            document
+                .querySelectorAll("[data-dynamic-field]")
+                .forEach(control => {
+                    control.disabled = false;
+                });
 
         }
 
